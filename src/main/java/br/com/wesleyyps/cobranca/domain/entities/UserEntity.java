@@ -1,4 +1,4 @@
-package br.com.wesleyyps.cobranca.domain.entity;
+package br.com.wesleyyps.cobranca.domain.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,4 +26,6 @@ public class UserEntity extends BaseEntity {
     protected String name;
     @Column
     protected String email;
+    @Column
+    protected String password;
 }

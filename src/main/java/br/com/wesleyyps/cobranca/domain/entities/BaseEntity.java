@@ -1,4 +1,4 @@
-package br.com.wesleyyps.cobranca.domain.entity;
+package br.com.wesleyyps.cobranca.domain.entities;
 
 import java.sql.Timestamp;
 import java.util.UUID;

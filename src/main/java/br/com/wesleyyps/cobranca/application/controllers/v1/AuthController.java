@@ -1,6 +1,5 @@
 package br.com.wesleyyps.cobranca.application.controllers.v1;
 
-import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +17,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.wesleyyps.cobranca.domain.entity.UserEntity;
-import br.com.wesleyyps.cobranca.domain.exceptions.CobrancaException;
-import br.com.wesleyyps.cobranca.domain.repositories.UserRepository;
 import br.com.wesleyyps.cobranca.application.dtos.requests.AuthRequest;
 import br.com.wesleyyps.cobranca.application.dtos.responses.AuthResponse;
 import br.com.wesleyyps.cobranca.application.dtos.responses.ErrorResponse;
 import br.com.wesleyyps.cobranca.application.dtos.responses.ProfileResponse;
+import br.com.wesleyyps.cobranca.domain.entities.UserEntity;
+import br.com.wesleyyps.cobranca.domain.exceptions.CobrancaException;
+import br.com.wesleyyps.cobranca.domain.mappers.UserMapper;
+import br.com.wesleyyps.cobranca.domain.repositories.UserRepository;
 import br.com.wesleyyps.cobranca.infrastructure.security.JwtTokenProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -43,9 +43,9 @@ import jakarta.validation.Valid;
 @CrossOrigin(origins = "*")
 public class AuthController {
     @Autowired
-    protected AuthenticationManager authenticationManager;
+    protected UserMapper userMapper;
     @Autowired
-    protected ModelMapper modelMapper;
+    protected AuthenticationManager authenticationManager;
     @Autowired
     protected JwtTokenProvider tokenProvider;
     @Autowired
@@ -92,6 +92,7 @@ public class AuthController {
         AuthRequest authRequest
     ) throws CobrancaException {
         String email = authRequest.email();
+
         try {
             Authentication authentication = authenticationManager
                 .authenticate(
@@ -100,6 +101,7 @@ public class AuthController {
                         authRequest.password()
                     )
                 );
+            this.logger.debug("Authenticated");
 
             SecurityContextHolder
                 .getContext()
@@ -115,9 +117,8 @@ public class AuthController {
             String token = this.tokenProvider
                 .generateToken(authentication);
 
-            ProfileResponse profile = this.modelMapper.map(
-                user,
-                ProfileResponse.class
+            ProfileResponse profile = this.userMapper.toProfileResponse(
+                user
             );
 
             return ResponseEntity.ok(

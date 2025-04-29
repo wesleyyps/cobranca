@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import br.com.wesleyyps.cobranca.domain.entity.UserEntity;
+import br.com.wesleyyps.cobranca.domain.entities.UserEntity;
 import br.com.wesleyyps.cobranca.domain.repositories.UserRepository;
 
 @Repository
