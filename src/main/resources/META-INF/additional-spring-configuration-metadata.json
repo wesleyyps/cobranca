@@ -1,0 +1,37 @@
+{"properties": [
+  {
+    "name": "app.date.format",
+    "type": "java.lang.String",
+    "description": "App's system wide dateformat configuration"
+  },
+  {
+    "name": "app.jackson.time-zone",
+    "type": "java.lang.String",
+    "description": "App's jackson timezone configuration"
+  },
+  {
+    "name": "app.test.enabled",
+    "type": "java.lang.Boolean",
+    "description": "Controls if tests should run or not"
+  },
+  {
+    "name": "flyway.baseline-on-migrate",
+    "type": "java.lang.String",
+    "description": "Run baseline migration when running migrations"
+  },
+  {
+    "name": "app.show-stacktraces",
+    "type": "java.lang.Boolean",
+    "description": "Return full stacktraces from exceptions in error responses"
+  },
+  {
+    "name": "app.jwt-expiration-milliseconds",
+    "type": "java.lang.String",
+    "description": "Jwt expiration"
+  },
+  {
+    "name": "app.jwt-secret",
+    "type": "java.lang.String",
+    "description": "JWT Secret key for encoding"
+  }
+]}

@@ -1,0 +1,130 @@
+services:
+  app:
+    image: 'wesleyyps/cobranca:development'
+    stdin_open: true
+    tty: true
+    env_file:
+      - ./.env
+    environment:
+      - TIMEZONE=${TIMEZONE}
+      - APP_ENVIRONMENT=${APP_ENVIRONMENT}
+      - APP_DEFAULT_DATE_FORMAT=${APP_DEFAULT_DATE_FORMAT}
+      - APP_LOG_LEVEL=${APP_LOG_LEVEL}
+      - APP_SECURITY_USER=${APP_SECURITY_USER}
+      - APP_SECURITY_PASS=${APP_SECURITY_PASS}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - CONSOLE_SHOW_SQL=${CONSOLE_SHOW_SQL}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USER=${MAIL_USER}
+      - MAIL_PASS=${MAIL_PASS}
+      - MAIL_AUTH=${MAIL_AUTH}
+      - MAIL_TLS=${MAIL_TLS}
+      - SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
+    build:
+      context: ./
+      dockerfile: docker/app/Dockerfile
+      args:
+        - TIMEZONE=${TIMEZONE}
+        - APP_ENVIRONMENT=${APP_ENVIRONMENT}
+    volumes:
+      - ./:/app
+    networks:
+      - cobranca-network
+    ports:
+      - 8080:8080
+      - 8010:8010
+    depends_on:
+      - mysql
+      - zookeeper
+      - redis
+      - mailer
+    command: /bin/bash -c "cp "/app/src/main/resources/application-${APP_ENVIRONMENT}.properties" /app/src/main/resources/application.properties && mvn -X clean spring-boot:run"
+
+  mysql:
+    image: 'mysql:8.4.5'
+    stdin_open: true
+    tty: true
+    environment:
+      - 'MYSQL_DATABASE=${DB_NAME}'
+      - 'MYSQL_USER=${DB_USER}'
+      - 'MYSQL_PASSWORD=${DB_PASS}'
+      - 'MYSQL_ROOT_PASSWORD=123456'
+    volumes:
+      - ./docker-volumes/mysql:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - cobranca-network
+    ports:
+      - '${DB_PORT}:3306'
+
+  redis:
+    image: 'redis:7.4.3-bookworm'
+    stdin_open: true
+    tty: true
+    environment:
+      REDIS_PASSWORD: ${CACHE_PASS}
+    networks:
+      - cobranca-network
+    ports:
+      - '${CACHE_PORT}:6379'
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.9.0
+    stdin_open: true
+    tty: true
+    environment:
+      ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_PORT}
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - cobranca-network
+    ports:
+      - 2181:2181
+
+  kafka:
+    image: confluentinc/cp-kafka:7.9.0
+    stdin_open: true
+    tty: true
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - 9092:9092
+    networks: 
+      - cobranca-network
+    depends_on:
+      - zookeeper
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop:4.1.0
+    stdin_open: true
+    tty: true
+    environment:
+      KAFKA_BROKERCONNECT: kafka:29092
+    ports:
+      - 19000:9000
+    networks: 
+      - cobranca-network
+    depends_on:
+      - kafka
+      - zookeeper
+
+  mailer:
+    image: maildev/maildev:2.1.0
+    ports:
+      - 1080:1080
+      - 1025:1025
+    networks:
+      - cobranca-network
+
+networks:
+  cobranca-network:
+    driver: bridge
