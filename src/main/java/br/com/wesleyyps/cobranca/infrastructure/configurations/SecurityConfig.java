@@ -39,15 +39,15 @@ public class SecurityConfig
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                        new AntPathRequestMatcher("/api/v1/auth/**"),
-                        new AntPathRequestMatcher("/v2/api-docs"),
-                        new AntPathRequestMatcher("/configuration/ui"),
-                        new AntPathRequestMatcher("/swagger-resources/**"),
-                        new AntPathRequestMatcher("/configuration/security"),
-                        new AntPathRequestMatcher("/swagger-ui.html"),
-                        new AntPathRequestMatcher("/webjars/**"),
-                        new AntPathRequestMatcher("/v3/api-docs/**"),
-                        new AntPathRequestMatcher("/swagger-ui/**")
+                    new AntPathRequestMatcher("/api/v1/auth/**"),
+                    new AntPathRequestMatcher("/v2/api-docs"),
+                    new AntPathRequestMatcher("/configuration/ui"),
+                    new AntPathRequestMatcher("/swagger-resources/**"),
+                    new AntPathRequestMatcher("/configuration/security"),
+                    new AntPathRequestMatcher("/swagger-ui.html"),
+                    new AntPathRequestMatcher("/webjars/**"),
+                    new AntPathRequestMatcher("/v3/api-docs/**"),
+                    new AntPathRequestMatcher("/swagger-ui/**")
                 )
                 .permitAll()
                 .anyRequest()
